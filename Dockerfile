@@ -8,4 +8,4 @@ WORKDIR pipeline/
 
 RUN mvn clean install
 
-ENTRYPOINT [ "java", "-jar", "/pipeline/target/docker-jenkinspipeline.jar"]
+ENTRYPOINT [ "java", "-jar", "/pipeline/target/my-app.jar"]
