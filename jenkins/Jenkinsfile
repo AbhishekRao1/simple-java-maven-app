@@ -9,19 +9,13 @@ node {
                 env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
         }
         stage('Checkout') {
-            steps {
                 checkout scm
-            }
         }
         stage('Build') {
-            steps {
                 sh 'mvn clean install'
-            }
         }
         stage('Test') {
-            steps {
                 sh 'mvn test'
-            }
             post {
                 always {
                     junit 'target/surefire-reports/*.xml'
