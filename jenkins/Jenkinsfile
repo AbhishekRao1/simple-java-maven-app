@@ -2,14 +2,7 @@ def CONTAINER_NAME="samplejenkinspipeline"
 def CONTAINER_TAG="${env.BUILD_NUMBER}"
 def DOCKER_HUB_USER="akrao"
 
-pipeline {
-    agent {
-        docker {
-            image 'maven:3-alpine'
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
-    stages {
+node {
         stage('Initialize'){
                 def dockerHome = tool 'myDocker'
                 def mavenHome  = tool 'myMaven'
@@ -37,33 +30,24 @@ pipeline {
         }
         stage('Image Build'){
             try {
-                steps {
                     sh "docker image prune -f"
                     sh "docker stop $CONTAINER_NAME"
-                }
-            } catch(error){}
-            steps {
+                } catch(error){}           
                 sh "docker build -t $CONTAINER_NAME:$CONTAINER_TAG  -t $CONTAINER_NAME --pull --no-cache ."
                 echo "Image build complete"
-            }
         }
 
         stage('Push to Docker Registry'){
-            steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh "docker login -u $DOCKER_HUB_USER -p $PASSWORD"
                     sh "docker tag $CONTAINER_NAME:$tag $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
                     sh "docker push $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
                     echo "Image push complete"
                 }
-            }
         }
 
         stage('Run App'){
-            steps {
                 sh "docker pull $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
                 sh "docker run -d --rm --name $CONTAINER_NAME $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"            
-            }
         }
-    }
 }
