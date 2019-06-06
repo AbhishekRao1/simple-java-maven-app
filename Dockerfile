@@ -10,4 +10,4 @@ WORKDIR pipeline/
 
 RUN mvn clean install
 
-ENTRYPOINT ["pipeline/deliver.sh"]
+ENTRYPOINT ["/pipeline/deliver.sh"]
