@@ -37,6 +37,6 @@ node {
 
         stage('Run App'){
                 sh "docker pull $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
-                sh "docker run -d --rm --name $CONTAINER_NAME $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"            
+                sh "docker run $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"            
         }
 }
