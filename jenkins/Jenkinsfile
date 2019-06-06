@@ -9,14 +9,18 @@ pipeline {
             args '-v /root/.m2:/root/.m2'
         }
     }
-    node {
+    stages {
         stage('Initialize'){
-            def dockerHome = tool 'myDocker'
-            def mavenHome  = tool 'myMaven'
-            env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
+            steps {
+                def dockerHome = tool 'myDocker'
+                def mavenHome  = tool 'myMaven'
+                env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
+            }
         }
         stage('Checkout') {
-            checkout scm
+            steps {
+                checkout scm
+            }
         }
         stage('Build') {
             steps {
@@ -34,27 +38,33 @@ pipeline {
             }
         }
         stage('Image Build'){
-                try {
-                sh "docker image prune -f"
-                sh "docker stop $CONTAINER_NAME"
-            } catch(error){}
-    
-        sh "docker build -t $CONTAINER_NAME:$CONTAINER_TAG  -t $CONTAINER_NAME --pull --no-cache ."
-        echo "Image build complete"
+            steps {
+                    try {
+                    sh "docker image prune -f"
+                    sh "docker stop $CONTAINER_NAME"
+                } catch(error){}
+
+                sh "docker build -t $CONTAINER_NAME:$CONTAINER_TAG  -t $CONTAINER_NAME --pull --no-cache ."
+                echo "Image build complete"
+            }
         }
 
         stage('Push to Docker Registry'){
-            withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh "docker login -u $DOCKER_HUB_USER -p $PASSWORD"
-                sh "docker tag $CONTAINER_NAME:$tag $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
-                sh "docker push $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
-                echo "Image push complete"
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh "docker login -u $DOCKER_HUB_USER -p $PASSWORD"
+                    sh "docker tag $CONTAINER_NAME:$tag $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
+                    sh "docker push $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
+                    echo "Image push complete"
+                }
             }
         }
 
         stage('Run App'){
-            sh "docker pull $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
-            sh "docker run -d --rm --name $CONTAINER_NAME $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"            
+            steps {
+                sh "docker pull $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"
+                sh "docker run -d --rm --name $CONTAINER_NAME $DOCKER_HUB_USER/$CONTAINER_NAME:$CONTAINER_TAG"            
+            }
         }
     }
 }
