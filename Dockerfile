@@ -1,11 +1,7 @@
 FROM maven:3-alpine
 
-COPY pom.xml pipeline/
-
-COPY src/ pipeline/src/
-
-WORKDIR pipeline/
+WORKDIR /
 
 RUN mvn clean install
 
-ENTRYPOINT [ "java", "-jar", "/pipeline/target/my-app.jar"]
+ENTRYPOINT [ "java", "-jar", "/target/my-app.jar"]
