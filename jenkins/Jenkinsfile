@@ -11,11 +11,9 @@ pipeline {
     }
     stages {
         stage('Initialize'){
-            steps {
                 def dockerHome = tool 'myDocker'
                 def mavenHome  = tool 'myMaven'
                 env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-            }
         }
         stage('Checkout') {
             steps {
@@ -38,12 +36,14 @@ pipeline {
             }
         }
         stage('Image Build'){
-            steps {
-                    try {
+            try {
+                steps {
                     sh "docker image prune -f"
                     sh "docker stop $CONTAINER_NAME"
-                } catch(error){}
-
+                } 
+                catch(error){}
+            }
+            steps {
                 sh "docker build -t $CONTAINER_NAME:$CONTAINER_TAG  -t $CONTAINER_NAME --pull --no-cache ."
                 echo "Image build complete"
             }
