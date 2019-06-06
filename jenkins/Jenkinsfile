@@ -1,8 +1,8 @@
-def CONTAINER_NAME="jenkins-pipeline"
+def CONTAINER_NAME="samplejenkinspipeline"
 def CONTAINER_TAG="${env.BUILD_NUMBER}"
 def DOCKER_HUB_USER="akrao"
 
-node {
+pipeline {
     agent {
         docker {
             image 'maven:3-alpine'
