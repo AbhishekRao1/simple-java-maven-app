@@ -9,7 +9,7 @@ pipeline {
             args '-v /root/.m2:/root/.m2'
         }
     }
-    stages {
+    node {
         stage('Initialize'){
             def dockerHome = tool 'myDocker'
             def mavenHome  = tool 'myMaven'
